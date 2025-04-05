@@ -1,15 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"time"
+
+	data "github.com/mattemello/f1Terminal/internal/takeData"
 )
-
-type TimeNow struct {
-	Date time.Time
-}
-
-var Time TimeNow
 
 func main() {
 	Timer()
@@ -21,16 +16,7 @@ func Timer() {
 
 	for {
 		<-ticker.C
-		go takeTimeNow()
+		go data.StartTicked()
 	}
 
-}
-
-func takeTimeNow() {
-	Time.Date = time.Now().UTC()
-	takeData()
-}
-
-func takeData() {
-	fmt.Println(Time.Date.Format("2006-01-02 15:04:05"))
 }
