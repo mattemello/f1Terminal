@@ -15,48 +15,73 @@ const URLSite = "https://api.openf1.org/v1/"
 var Now string
 var Previus string
 
-var Car CarData
+func IsSessionOn() bool {
+	var session Session
+	sessionURL := URLSite + "sessions?session_key=latest"
 
-func StartTicked() {
-	now := time.Now().UTC()
-	previus := now.Add(time.Duration(-1) * time.Second)
+	body, err := GetData(sessionURL)
 
-	Now = now.Format("2006-01-02 15:04:05")
-	Previus = previus.Format("2006-01-02 15:04:05")
-
-	Now = strings.ReplaceAll(Now, " ", "T")
-	Previus = strings.ReplaceAll(Previus, " ", "T")
-
-	fmt.Println("now: ", Now, " previus: ", Previus)
-	GetDataCar()
-}
-
-// todo: change the error to only return
-func GetDataCar() error {
-	fmt.Println(URLSite + "car_data?date>" + Previus + "&date<=" + Now)
-	obj, err := http.Get(URLSite + "car_data?date>" + Previus + "&date<=" + Now)
 	if err != nil {
 		log.Println("error in the get, ", err)
-		return err
+		return false
 	}
 
-	body, err := io.ReadAll(obj.Body)
+	err = json.Unmarshal(body, &session)
 	if err != nil {
-		log.Println("error in the readAll: ", err)
-		return err
-	}
-
-	err = json.Unmarshal(body, &Car)
-	if err != nil {
-		log.Println("error in the unmarshal: ", err)
 		if e, ok := err.(*json.SyntaxError); ok {
 			log.Printf("syntax error at byte offset %d", e.Offset)
 		}
-		return err
+		log.Println(string(body))
 	}
 
-	fmt.Println(Car)
+	// session[0].DateStart
 
-	return nil
+	return false
+}
+
+func TickedDone() {
+	now := time.Now().UTC()
+	previus := now.Add(time.Duration(-1) * time.Second)
+
+	Now = strings.ReplaceAll(now.Format("2006-01-02 15:04:05"), " ", "T")
+	Previus = strings.ReplaceAll(previus.Format("2006-01-02 15:04:05"), " ", "T")
+
+	go CarFunc()
+}
+
+func CarFunc() {
+	var car Car
+	car.URL = URLSite + "car_data?date>" + Previus + "&date<=" + Now
+
+	body, err := GetData(car.URL)
+	if err != nil {
+		log.Println("error in the get, ", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &car.CarData)
+	if err != nil {
+		if e, ok := err.(*json.SyntaxError); ok {
+			log.Printf("syntax error at byte offset %d", e.Offset)
+		}
+		log.Println(string(body))
+	}
+
+	fmt.Println(car.CarData)
+}
+
+func GetData(url string) ([]byte, error) {
+	obj, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer obj.Body.Close()
+
+	body, err := io.ReadAll(obj.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 
 }
