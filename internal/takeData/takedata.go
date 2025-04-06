@@ -2,6 +2,7 @@ package takedata
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -16,7 +17,7 @@ var Now string
 var Previus string
 
 func IsSessionOn() bool {
-	var session Session
+	var session []Session
 	sessionURL := URLSite + "sessions?session_key=latest&meeting_key=latest"
 
 	body, err := GetData(sessionURL)
@@ -31,11 +32,30 @@ func IsSessionOn() bool {
 		if e, ok := err.(*json.SyntaxError); ok {
 			log.Printf("syntax error at byte offset %d", e.Offset)
 		}
-		log.Println(string(body))
+		log.Println("error in the unmarshal: ", err, " \nbody: ", string(body))
 	}
 
 	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC())
+}
 
+func TakeCircuit() (Circuit, error) {
+	var cir []Circuit
+	circuitUrl := URLSite + "meetings?meeting_key=latest"
+
+	body, err := GetData(circuitUrl)
+	if err != nil {
+		return Circuit{}, err
+	}
+
+	err = json.Unmarshal(body, &cir)
+	if err != nil {
+		if e, ok := err.(*json.SyntaxError); ok {
+			return Circuit{}, errors.New(fmt.Sprintf("syntax error at byte offset %d \n body: %s", e.Offset, string(body)))
+		}
+		return Circuit{}, err
+	}
+
+	return cir[0], nil
 }
 
 func TickedDone() {
@@ -67,6 +87,7 @@ func CarFunc() {
 	}
 
 	fmt.Println(car.CarData)
+	//note: here I update the tui
 }
 
 func GetData(url string) ([]byte, error) {

@@ -2,7 +2,7 @@ package takedata
 
 import "time"
 
-type Session []struct {
+type Session struct {
 	CircuitKey       int       `json:"circuit_key"`
 	CircuitShortName string    `json:"circuit_short_name"`
 	CountryCode      string    `json:"country_code"`
@@ -19,7 +19,22 @@ type Session []struct {
 	Year             int       `json:"year"`
 }
 
-type Driver []struct {
+type Circuit struct {
+	CircuitKey          int       `json:"circuit_key"`
+	CircuitShortName    string    `json:"circuit_short_name"`
+	CountryCode         string    `json:"country_code"`
+	CountryKey          int       `json:"country_key"`
+	CountryName         string    `json:"country_name"`
+	DateStart           time.Time `json:"date_start"`
+	GmtOffset           string    `json:"gmt_offset"`
+	Location            string    `json:"location"`
+	MeetingKey          int       `json:"meeting_key"`
+	MeetingName         string    `json:"meeting_name"`
+	MeetingOfficialName string    `json:"meeting_official_name"`
+	Year                int       `json:"year"`
+}
+
+type Driver struct {
 	BroadcastName string `json:"broadcast_name"`
 	CountryCode   string `json:"country_code"`
 	DriverNumber  int    `json:"driver_number"`

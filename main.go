@@ -24,7 +24,21 @@ func main() {
 }
 
 func Start() {
-	p := tea.NewProgram(tui.NewModel())
+	cir, err := data.TakeCircuit()
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	cirString := tui.Circuit{
+		GranprixName:    cir.CircuitShortName,
+		GranprixOffName: cir.MeetingOfficialName,
+		CountryName:     cir.CountryName,
+		Date:            cir.DateStart,
+		Location:        cir.Location,
+	}
+
+	p := tea.NewProgram(tui.NewModel(cirString))
 
 	go func() {
 		if _, err := p.Run(); err != nil {
