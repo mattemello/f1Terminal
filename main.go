@@ -13,9 +13,14 @@ import (
 func main() {
 	Start()
 
-	if data.isSessionOn() {
+	if data.IsSessionOn() {
 		Timer()
+	} else {
+		for {
+
+		}
 	}
+
 }
 
 func Start() {

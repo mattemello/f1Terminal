@@ -17,7 +17,7 @@ var Previus string
 
 func IsSessionOn() bool {
 	var session Session
-	sessionURL := URLSite + "sessions?session_key=latest"
+	sessionURL := URLSite + "sessions?session_key=latest&meeting_key=latest"
 
 	body, err := GetData(sessionURL)
 
@@ -34,9 +34,8 @@ func IsSessionOn() bool {
 		log.Println(string(body))
 	}
 
-	// session[0].DateStart
+	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC())
 
-	return false
 }
 
 func TickedDone() {
