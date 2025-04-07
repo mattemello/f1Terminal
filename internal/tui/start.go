@@ -1,11 +1,14 @@
 package tui
 
 import (
+	// "fmt"
 	"fmt"
+	"os"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/term"
 )
 
 var (
@@ -15,14 +18,15 @@ var (
 	topRightStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).MarginRight(2)
 
 	topStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(100).
-			Height(2).BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color("69"))
+			Height(2).Border(lipgloss.RoundedBorder()).
+			BorderLeft(false).BorderRight(false).BorderTop(false)
 
 	bottomStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(100).
-			Height(15).BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color("69"))
+			Height(20)
 
 	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+
+	allStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#f2cdcd"))
 )
 
 type Circuit struct {
@@ -67,9 +71,15 @@ func (m mainModel) View() string {
 	top := lipgloss.JoinHorizontal(lipgloss.Center, topLeftStyle.Render(m.top.GranprixName), topRightStyle.Render(rightPart))
 	tt := lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(fmt.Sprintf("world\n")))
 	tt += helpStyle.Render(fmt.Sprintf("\nq: exit\n"))
+	tt = allStyle.Render(tt)
 
-	// todo: center the place
-	s += lipgloss.Place(100, 17, lipgloss.Center, lipgloss.Center, tt)
+	width, height, err := term.GetSize(0)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	s += lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, tt)
 
 	return s
 }
