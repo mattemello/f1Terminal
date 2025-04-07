@@ -58,24 +58,24 @@ func TakeCircuit() (Circuit, error) {
 	return cir[0], nil
 }
 
-func TickedDone() {
+func TickedDone() string {
 	now := time.Now().UTC()
 	previus := now.Add(time.Duration(-1) * time.Second)
 
 	Now = strings.ReplaceAll(now.Format("2006-01-02 15:04:05"), " ", "T")
 	Previus = strings.ReplaceAll(previus.Format("2006-01-02 15:04:05"), " ", "T")
 
-	go CarFunc()
+	return CarFunc()
 }
 
-func CarFunc() {
+func CarFunc() string {
 	var car Car
 	car.URL = URLSite + "car_data?date>" + Previus + "&date<=" + Now
 
 	body, err := GetData(car.URL)
 	if err != nil {
 		log.Println("error in the get, ", err)
-		return
+		return ""
 	}
 
 	err = json.Unmarshal(body, &car.CarData)
@@ -88,6 +88,11 @@ func CarFunc() {
 
 	fmt.Println(car.CarData)
 	//note: here I update the tui
+	return carToString(car.CarData)
+}
+
+func carToString(car CarData) string {
+	return fmt.Sprintf("Gear: %d\nDrs: %d\nBrake: %d\nSpeed: %d\n", car[0].NGear, car[0].Drs, car[0].Brake, car[0].Speed)
 }
 
 func GetData(url string) ([]byte, error) {
@@ -104,4 +109,8 @@ func GetData(url string) ([]byte, error) {
 
 	return body, nil
 
+}
+
+func NoSession() string {
+	return "IT'S CHAURLSE LECLURCCCCH"
 }

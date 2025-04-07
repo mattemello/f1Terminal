@@ -11,19 +11,19 @@ import (
 )
 
 func main() {
-	Start()
+	p := Start()
 
 	if data.IsSessionOn() {
-		Timer()
+		Timer(p)
 	} else {
-		for {
-
-		}
+		str := data.NoSession()
+		p.Send(tui.MsgUpdate(str))
 	}
 
+	select {}
 }
 
-func Start() {
+func Start() *tea.Program {
 	cir, err := data.TakeCircuit()
 	if err != nil {
 		log.Println(err)
@@ -48,15 +48,20 @@ func Start() {
 		os.Exit(0)
 	}()
 
+	return p
+
 }
 
-func Timer() {
+func Timer(p *tea.Program) {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for {
 		<-ticker.C
-		go data.TickedDone()
+		go func() {
+			str := data.TickedDone()
+			p.Send(tui.MsgUpdate(str))
+		}()
 	}
 
 }
