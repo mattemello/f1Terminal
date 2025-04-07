@@ -111,13 +111,13 @@ func GetData(url string) ([]byte, error) {
 
 }
 
-func NoSession() string {
-	var positionLastSession Position
-	positionLastSessionUrl := URLSite + ""
+func NoSession() [][]string {
+	var positionLastSession []Position
+	positionLastSessionUrl := URLSite + "position?session_key=latest"
 	body, err := GetData(positionLastSessionUrl)
 	if err != nil {
 		log.Println("error in the get, ", err)
-		return ""
+		return nil
 	}
 
 	err = json.Unmarshal(body, &positionLastSession)
@@ -126,9 +126,43 @@ func NoSession() string {
 			log.Printf("syntax error at byte offset %d", e.Offset)
 		}
 		log.Println(string(body))
+		return nil
 	}
 
-	fmt.Println(positionLastSession)
-	//note: here I update the tui
-	return ""
+	cleanedSession := cleanSession(positionLastSession)
+
+	return sortSession(cleanedSession)
+}
+
+func sortSession(clSe map[int]Position) [][]string {
+	var soSession = make([][]string, 20)
+
+	for _, elem := range clSe {
+		soSession[elem.Position-1] = []string{
+			fmt.Sprintf("%d", elem.Position),
+			fmt.Sprintf("%d", elem.DriverNumber),
+		}
+	}
+
+	return soSession
+}
+
+func cleanSession(pos []Position) map[int]Position {
+
+	var mapPos = make(map[int]Position)
+
+	for _, elem := range pos {
+		value, in := mapPos[elem.DriverNumber]
+		if !in {
+			mapPos[elem.DriverNumber] = elem
+			continue
+		}
+
+		if !elem.Date.After(value.Date) {
+			mapPos[elem.DriverNumber] = elem
+			continue
+		}
+	}
+
+	return mapPos
 }

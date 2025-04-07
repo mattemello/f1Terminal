@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
@@ -22,15 +23,20 @@ var (
 			Height(2).Border(lipgloss.RoundedBorder()).
 			BorderLeft(false).BorderRight(false).BorderTop(false)
 
-	bottomStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(100).
-			Height(20)
+	bottomStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Top).Width(100).
+			Height(23)
 
 	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 
 	allStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#f2cdcd"))
+
+	columsPos = []table.Column{
+		{Title: "Position", Width: 8},
+		{Title: "N° Driver", Width: 9},
+	}
 )
 
-type MsgUpdate string
+type MsgUpdate []table.Row
 
 type Circuit struct {
 	GranprixName    string
@@ -43,7 +49,8 @@ type Circuit struct {
 type mainModel struct {
 	spinner spinner.Model
 	top     Circuit
-	bottom  string
+	bottom  []table.Row
+	Table   table.Model
 }
 
 func NewModel(cir Circuit) mainModel {
@@ -62,7 +69,7 @@ func (m mainModel) Init() tea.Cmd {
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case MsgUpdate:
-		m.bottom = string(msg)
+		m.bottom = msg
 		break
 
 	case tea.KeyMsg:
@@ -77,7 +84,10 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	return m, nil
+	var cmd tea.Cmd
+	m.Table, cmd = m.Table.Update(msg)
+
+	return m, cmd
 }
 
 func (m mainModel) View() string {
@@ -87,10 +97,11 @@ func (m mainModel) View() string {
 
 	top := lipgloss.JoinHorizontal(lipgloss.Center, topLeftStyle.Render(m.top.GranprixName), topRightStyle.Render(rightPart))
 	tt := ""
-	if m.bottom == "" {
+	if m.bottom == nil {
 		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(fmt.Sprintf("%s waiting...\n", m.spinner.View())))
 	} else {
-		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.bottom))
+		m.Table = table.New(table.WithColumns(columsPos), table.WithRows(m.bottom), table.WithFocused(true), table.WithHeight(21))
+		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
 	}
 	tt += helpStyle.Render(fmt.Sprintf("\nq: exit\n"))
 	tt = allStyle.Render(tt)
