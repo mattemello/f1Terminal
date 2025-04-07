@@ -112,5 +112,23 @@ func GetData(url string) ([]byte, error) {
 }
 
 func NoSession() string {
-	return "IT'S CHAURLSE LECLURCCCCH"
+	var positionLastSession Position
+	positionLastSessionUrl := URLSite + ""
+	body, err := GetData(positionLastSessionUrl)
+	if err != nil {
+		log.Println("error in the get, ", err)
+		return ""
+	}
+
+	err = json.Unmarshal(body, &positionLastSession)
+	if err != nil {
+		if e, ok := err.(*json.SyntaxError); ok {
+			log.Printf("syntax error at byte offset %d", e.Offset)
+		}
+		log.Println(string(body))
+	}
+
+	fmt.Println(positionLastSession)
+	//note: here I update the tui
+	return ""
 }

@@ -66,3 +66,11 @@ type CarData []struct {
 	Speed        int       `json:"speed"`
 	Throttle     int       `json:"throttle"`
 }
+
+type Position []struct {
+	Date         time.Time `json:"date"`
+	DriverNumber int       `json:"driver_number"`
+	MeetingKey   int       `json:"meeting_key"`
+	Position     int       `json:"position"`
+	SessionKey   int       `json:"session_key"`
+}
