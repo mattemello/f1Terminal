@@ -30,9 +30,14 @@ var (
 
 	allStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#f2cdcd"))
 
+	// tableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
+
 	columsPos = []table.Column{
 		{Title: "Position", Width: 8},
+		{Title: "First Name", Width: 9},
+		{Title: "Last Name", Width: 10},
 		{Title: "N° Driver", Width: 9},
+		{Title: "Team Name", Width: 10},
 	}
 )
 
@@ -79,13 +84,17 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	default:
-		var cmd tea.Cmd
-		m.spinner, cmd = m.spinner.Update(msg)
-		return m, cmd
+		if m.bottom == nil {
+			var cmd tea.Cmd
+			m.spinner, cmd = m.spinner.Update(msg)
+			return m, cmd
+		}
 	}
 
 	var cmd tea.Cmd
 	m.Table, cmd = m.Table.Update(msg)
+
+	m.Table.MoveDown(1)
 
 	return m, cmd
 }
@@ -100,7 +109,14 @@ func (m mainModel) View() string {
 	if m.bottom == nil {
 		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(fmt.Sprintf("%s waiting...\n", m.spinner.View())))
 	} else {
-		m.Table = table.New(table.WithColumns(columsPos), table.WithRows(m.bottom), table.WithFocused(true), table.WithHeight(21))
+		m.Table = table.New(table.WithColumns(columsPos), table.WithRows(m.bottom), table.WithFocused(false), table.WithHeight(21))
+
+		stTable := table.DefaultStyles()
+		stTable.Header = stTable.Header.BorderStyle(lipgloss.NormalBorder()).BorderBottom(true).Bold(false)
+		stTable.Selected = stTable.Selected.Bold(false).Background(lipgloss.Color("#8caaee"))
+
+		m.Table.SetStyles(stTable)
+
 		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
 	}
 	tt += helpStyle.Render(fmt.Sprintf("\nq: exit\n"))

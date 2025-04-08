@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	data.TakeDriverInSession()
 	p := Start()
 
 	if data.IsSessionOn() {

@@ -34,7 +34,7 @@ type Circuit struct {
 	Year                int       `json:"year"`
 }
 
-type Driver struct {
+type DriverAll struct {
 	BroadcastName string `json:"broadcast_name"`
 	CountryCode   string `json:"country_code"`
 	DriverNumber  int    `json:"driver_number"`
@@ -47,6 +47,14 @@ type Driver struct {
 	SessionKey    int    `json:"session_key"`
 	TeamColour    string `json:"team_colour"`
 	TeamName      string `json:"team_name"`
+}
+
+type Driver struct {
+	DriverNumber int
+	FirstName    string
+	LastName     string
+	NameAcronym  string
+	TeamName     string
 }
 
 type Car struct {
