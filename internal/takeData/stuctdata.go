@@ -2,7 +2,7 @@ package takedata
 
 import "time"
 
-type Session struct {
+type SessionStr struct {
 	CircuitKey       int       `json:"circuit_key"`
 	CircuitShortName string    `json:"circuit_short_name"`
 	CountryCode      string    `json:"country_code"`
@@ -55,6 +55,15 @@ type Driver struct {
 	LastName     string
 	NameAcronym  string
 	TeamName     string
+}
+
+type IntervalAll struct {
+	Date         time.Time `json:"date"`
+	DriverNumber int       `json:"driver_number"`
+	GapToLeader  float64   `json:"gap_to_leader"`
+	Interval     float64   `json:"interval"`
+	MeetingKey   int       `json:"meeting_key"`
+	SessionKey   int       `json:"session_key"`
 }
 
 type Car struct {

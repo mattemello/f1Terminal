@@ -39,9 +39,22 @@ var (
 		{Title: "N° Driver", Width: 9},
 		{Title: "Team Name", Width: 10},
 	}
+
+	columsSess = []table.Column{
+		{Title: "Position", Width: 8},
+		{Title: "First Name", Width: 9},
+		{Title: "Last Name", Width: 10},
+		{Title: "N° Driver", Width: 9},
+		{Title: "Gap Leader", Width: 9},
+		{Title: "Gap Head", Width: 9},
+		{Title: "Team Name", Width: 10},
+	}
 )
 
-type MsgUpdate []table.Row
+type MsgUpdate struct {
+	SessionOn bool
+	Table     []table.Row
+}
 
 type Circuit struct {
 	GranprixName    string
@@ -52,10 +65,11 @@ type Circuit struct {
 }
 
 type mainModel struct {
-	spinner spinner.Model
-	top     Circuit
-	bottom  []table.Row
-	Table   table.Model
+	spinner   spinner.Model
+	top       Circuit
+	bottom    []table.Row
+	Table     table.Model
+	sessionOn bool
 }
 
 func NewModel(cir Circuit) mainModel {
@@ -74,7 +88,8 @@ func (m mainModel) Init() tea.Cmd {
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case MsgUpdate:
-		m.bottom = msg
+		m.sessionOn = msg.SessionOn
+		m.bottom = msg.Table
 		break
 
 	case tea.KeyMsg:
@@ -108,7 +123,7 @@ func (m mainModel) View() string {
 	tt := ""
 	if m.bottom == nil {
 		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(fmt.Sprintf("%s waiting...\n", m.spinner.View())))
-	} else {
+	} else if !m.sessionOn {
 		m.Table = table.New(table.WithColumns(columsPos), table.WithRows(m.bottom), table.WithFocused(false), table.WithHeight(21))
 
 		stTable := table.DefaultStyles()
@@ -118,6 +133,17 @@ func (m mainModel) View() string {
 		m.Table.SetStyles(stTable)
 
 		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
+	} else {
+		m.Table = table.New(table.WithColumns(columsSess), table.WithRows(m.bottom), table.WithFocused(false), table.WithHeight(21))
+
+		stTable := table.DefaultStyles()
+		stTable.Header = stTable.Header.BorderStyle(lipgloss.NormalBorder()).BorderBottom(true).Bold(false)
+		stTable.Selected = stTable.Selected.Bold(false).Background(lipgloss.Color("#8caaee"))
+
+		m.Table.SetStyles(stTable)
+
+		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
+
 	}
 	tt += helpStyle.Render(fmt.Sprintf("\nq: exit\n"))
 	tt = allStyle.Render(tt)

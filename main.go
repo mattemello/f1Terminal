@@ -42,8 +42,8 @@ func main() {
 			str[18],
 			str[19],
 		}
-
-		p.Send(tui.MsgUpdate(tableRow))
+		ms := tui.MsgUpdate{SessionOn: false, Table: tableRow}
+		p.Send(ms)
 	}
 
 	select {}
@@ -85,7 +85,34 @@ func Timer(p *tea.Program) {
 	for {
 		<-ticker.C
 		go func() {
-			_ = data.TickedDone()
+			str := data.TickedDone()
+			//note: here update the table with a message
+
+			tableRow := []table.Row{
+				str[0],
+				str[1],
+				str[2],
+				str[3],
+				str[4],
+				str[5],
+				str[6],
+				str[7],
+				str[8],
+				str[9],
+				str[10],
+				str[11],
+				str[12],
+				str[13],
+				str[14],
+				str[15],
+				str[16],
+				str[17],
+				str[18],
+				str[19],
+			}
+
+			ms := tui.MsgUpdate{SessionOn: true, Table: tableRow}
+			p.Send(ms)
 		}()
 	}
 

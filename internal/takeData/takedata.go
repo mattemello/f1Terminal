@@ -16,66 +16,6 @@ const URLSite = "https://api.openf1.org/v1/"
 var Now string
 var Previus string
 
-func TakeDriverInSession() map[int]Driver {
-	var driver []DriverAll
-	drivUrl := URLSite + "drivers?session_key=latest"
-
-	body, err := GetData(drivUrl)
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return nil
-	}
-
-	err = json.Unmarshal(body, &driver)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println("error in the unmarshal: ", err, " \nbody: ", string(body))
-	}
-
-	return driverMap(driver)
-}
-
-var drvMap = make(map[int]Driver)
-
-func driverMap(dr []DriverAll) map[int]Driver {
-
-	for _, elem := range dr {
-		drvMap[elem.DriverNumber] = Driver{
-			FirstName:    elem.FirstName,
-			LastName:     elem.LastName,
-			NameAcronym:  elem.NameAcronym,
-			DriverNumber: elem.DriverNumber,
-			TeamName:     elem.TeamName,
-		}
-	}
-
-	return drvMap
-}
-
-func IsSessionOn() bool {
-	var session []Session
-	sessionURL := URLSite + "sessions?session_key=latest&meeting_key=latest"
-
-	body, err := GetData(sessionURL)
-
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return false
-	}
-
-	err = json.Unmarshal(body, &session)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println("error in the unmarshal: ", err, " \nbody: ", string(body))
-	}
-
-	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC())
-}
-
 func TakeCircuit() (Circuit, error) {
 	var cir []Circuit
 	circuitUrl := URLSite + "meetings?meeting_key=latest"
@@ -96,14 +36,77 @@ func TakeCircuit() (Circuit, error) {
 	return cir[0], nil
 }
 
-func TickedDone() string {
+// NOTE: the int in the map is the number of the Driver
+func Interval() map[int]IntervalAll {
+	var inter []IntervalAll
+	intUrl := URLSite + "intervals?session_key=latest&date>" + Previus + "&date<=" + Now
+
+	body, err := GetData(intUrl)
+	if err != nil {
+		log.Println("error in the get, ", err)
+		return nil
+	}
+
+	err = json.Unmarshal(body, &inter)
+	if err != nil {
+		if e, ok := err.(*json.SyntaxError); ok {
+			log.Printf("syntax error at byte offset %d", e.Offset)
+		}
+		log.Println(string(body))
+		return nil
+	}
+
+	return cleanInterval(inter)
+}
+
+func cleanInterval(interval []IntervalAll) map[int]IntervalAll {
+	var intervalMap = make(map[int]IntervalAll)
+
+	for _, elem := range interval {
+		value, in := intervalMap[elem.DriverNumber]
+		if !in {
+			intervalMap[elem.DriverNumber] = elem
+			continue
+		}
+
+		if !elem.Date.After(value.Date) {
+			intervalMap[elem.DriverNumber] = elem
+			continue
+		}
+	}
+
+	return intervalMap
+}
+
+func TickedDone() [][]string {
 	now := time.Now().UTC()
 	previus := now.Add(time.Duration(-1) * time.Second)
 
 	Now = strings.ReplaceAll(now.Format("2006-01-02 15:04:05"), " ", "T")
 	Previus = strings.ReplaceAll(previus.Format("2006-01-02 15:04:05"), " ", "T")
 
-	return CarFunc()
+	session := Session()
+	inter := Interval()
+
+	return changedTable(session, inter)
+}
+
+func changedTable(clSe map[int]Position, inte map[int]IntervalAll) [][]string {
+	var driv = make([][]string, 20)
+
+	for _, elem := range clSe {
+		driv[elem.Position-1] = []string{
+			fmt.Sprintf("%d", elem.Position),
+			drvMap[elem.DriverNumber].FirstName,
+			drvMap[elem.DriverNumber].LastName,
+			fmt.Sprintf("%d", elem.DriverNumber),
+			fmt.Sprintf("%f", inte[elem.DriverNumber].GapToLeader),
+			fmt.Sprintf("%f", inte[elem.DriverNumber].Interval),
+			drvMap[elem.DriverNumber].TeamName,
+		}
+	}
+
+	return nil
 }
 
 func CarFunc() string {
@@ -146,64 +149,4 @@ func GetData(url string) ([]byte, error) {
 	}
 
 	return body, nil
-
-}
-
-func NoSession() [][]string {
-	var positionLastSession []Position
-	positionLastSessionUrl := URLSite + "position?session_key=latest"
-	body, err := GetData(positionLastSessionUrl)
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return nil
-	}
-
-	err = json.Unmarshal(body, &positionLastSession)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println(string(body))
-		return nil
-	}
-
-	cleanedSession := cleanSession(positionLastSession)
-
-	return sortSession(cleanedSession)
-}
-
-func sortSession(clSe map[int]Position) [][]string {
-	var soSession = make([][]string, 20)
-
-	for _, elem := range clSe {
-		soSession[elem.Position-1] = []string{
-			fmt.Sprintf("%d", elem.Position),
-			drvMap[elem.DriverNumber].FirstName,
-			drvMap[elem.DriverNumber].LastName,
-			fmt.Sprintf("%d", elem.DriverNumber),
-			drvMap[elem.DriverNumber].TeamName,
-		}
-	}
-
-	return soSession
-}
-
-func cleanSession(pos []Position) map[int]Position {
-
-	var mapPos = make(map[int]Position)
-
-	for _, elem := range pos {
-		value, in := mapPos[elem.DriverNumber]
-		if !in {
-			mapPos[elem.DriverNumber] = elem
-			continue
-		}
-
-		if !elem.Date.After(value.Date) {
-			mapPos[elem.DriverNumber] = elem
-			continue
-		}
-	}
-
-	return mapPos
 }
