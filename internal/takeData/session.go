@@ -9,7 +9,7 @@ import (
 
 // NOTE: the int in the map is the number of the Driver
 
-func IsSessionOn() bool {
+func IsSessionOn() (bool, string) {
 	var session []SessionStr
 	sessionURL := URLSite + "sessions?session_key=latest&meeting_key=latest"
 
@@ -17,7 +17,7 @@ func IsSessionOn() bool {
 
 	if err != nil {
 		log.Println("error in the get, ", err)
-		return false
+		return false, ""
 	}
 
 	err = json.Unmarshal(body, &session)
@@ -28,7 +28,7 @@ func IsSessionOn() bool {
 		log.Println("error in the unmarshal: ", err, " \nbody: ", string(body))
 	}
 
-	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC())
+	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC()), session[0].SessionName
 }
 
 func session() map[int]Position {

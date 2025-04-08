@@ -13,9 +13,10 @@ import (
 
 func main() {
 	data.TakeDriverInSession()
-	p := Start()
+	on, typeSession := data.IsSessionOn()
+	p := Start(typeSession)
 
-	if data.IsSessionOn() {
+	if on {
 		Timer(p)
 	} else {
 		str := data.NoSession()
@@ -49,7 +50,7 @@ func main() {
 	select {}
 }
 
-func Start() *tea.Program {
+func Start(typeSession string) *tea.Program {
 	cir, err := data.TakeCircuit()
 	if err != nil {
 		log.Println(err)
@@ -58,10 +59,11 @@ func Start() *tea.Program {
 
 	cirString := tui.Circuit{
 		GranprixName:    cir.CircuitShortName,
-		GranprixOffName: cir.MeetingOfficialName,
+		GranprixOffName: tui.CutOff(cir.MeetingOfficialName),
 		CountryName:     cir.CountryName,
 		Date:            cir.DateStart,
 		Location:        cir.Location,
+		TypeSession:     typeSession,
 	}
 
 	p := tea.NewProgram(tui.NewModel(cirString))
