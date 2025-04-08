@@ -13,7 +13,7 @@ func IsSessionOn() bool {
 	var session []SessionStr
 	sessionURL := URLSite + "sessions?session_key=latest&meeting_key=latest"
 
-	body, err := GetData(sessionURL)
+	body, err := getData(sessionURL)
 
 	if err != nil {
 		log.Println("error in the get, ", err)
@@ -31,10 +31,10 @@ func IsSessionOn() bool {
 	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC())
 }
 
-func Session() map[int]Position {
+func session() map[int]Position {
 	var positionLastSession []Position
 	positionLastSessionUrl := URLSite + "position?session_key=latest&date>" + Previus + "&date<=" + Now
-	body, err := GetData(positionLastSessionUrl)
+	body, err := getData(positionLastSessionUrl)
 	if err != nil {
 		log.Println("error in the get, ", err)
 		return nil
@@ -55,7 +55,7 @@ func Session() map[int]Position {
 func NoSession() [][]string {
 	var positionLastSession []Position
 	positionLastSessionUrl := URLSite + "position?session_key=latest"
-	body, err := GetData(positionLastSessionUrl)
+	body, err := getData(positionLastSessionUrl)
 	if err != nil {
 		log.Println("error in the get, ", err)
 		return nil

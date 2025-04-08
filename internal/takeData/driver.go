@@ -11,7 +11,7 @@ func TakeDriverInSession() {
 	var driver []DriverAll
 	drivUrl := URLSite + "drivers?session_key=latest"
 
-	body, err := GetData(drivUrl)
+	body, err := getData(drivUrl)
 	if err != nil {
 		log.Println("error in the get, ", err)
 		return
