@@ -68,8 +68,7 @@ func main() {
 }
 
 func Start(typeSession string) *tea.Program {
-	cir, err := data.TakeCircuit()
-	errorsh.AssertNilTer(err, "The program failed to get the circuit data")
+	cir := data.TakeCircuit()
 
 	cirString := tui.Circuit{
 		GranprixName:    cir.CircuitShortName,

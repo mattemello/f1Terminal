@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	topLeftStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(30).
+	topLeftStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(25).
 			Bold(true).MarginRight(2).PaddingLeft(1).Foreground(lipgloss.Color("#cba6f7"))
 
 	topRightStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).MarginRight(2)
@@ -130,8 +130,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func CutOff(namGranPrix string) string {
-	if lipgloss.Width(namGranPrix) > 46 {
-		return namGranPrix[:45] + "..."
+	if lipgloss.Width(namGranPrix) > 50 {
+		return namGranPrix[:49] + "..."
 	}
 	return namGranPrix
 }
