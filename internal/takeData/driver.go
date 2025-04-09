@@ -2,7 +2,8 @@ package takedata
 
 import (
 	"encoding/json"
-	"log"
+
+	"github.com/mattemello/f1Terminal/internal/errorsh"
 )
 
 var drvMap = make(map[int]Driver)
@@ -12,18 +13,10 @@ func TakeDriverInSession() {
 	drivUrl := URLSite + "drivers?session_key=latest"
 
 	body, err := getData(drivUrl)
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return
-	}
+	errorsh.AssertNilTer(err, "The program failed to take the drivers data")
 
 	err = json.Unmarshal(body, &driver)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println("error in the unmarshal: ", err, " \nbody: ", string(body))
-	}
+	errorsh.AssertNilJson(err, body)
 
 	driverMap(driver)
 }

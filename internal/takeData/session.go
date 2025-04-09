@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/mattemello/f1Terminal/internal/errorsh"
 )
 
 // NOTE: the int in the map is the number of the Driver
@@ -14,19 +16,10 @@ func IsSessionOn() (bool, string) {
 	sessionURL := URLSite + "sessions?session_key=latest&meeting_key=latest"
 
 	body, err := getData(sessionURL)
-
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return false, ""
-	}
+	errorsh.AssertNilTer(err, "The program failed to take the session")
 
 	err = json.Unmarshal(body, &session)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println("error in the unmarshal: ", err, " \nbody: ", string(body))
-	}
+	errorsh.AssertNilJson(err, body)
 
 	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC()), session[0].SessionName
 }
@@ -35,19 +28,10 @@ func session() map[int]Position {
 	var positionLastSession []Position
 	positionLastSessionUrl := URLSite + "position?session_key=latest&date>" + Previus + "&date<=" + Now
 	body, err := getData(positionLastSessionUrl)
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return nil
-	}
+	errorsh.AssertNilTer(err, "The program failed to take the session")
 
 	err = json.Unmarshal(body, &positionLastSession)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println(string(body))
-		return nil
-	}
+	errorsh.AssertNilJson(err, body)
 
 	return cleanSession(positionLastSession)
 }
@@ -56,19 +40,10 @@ func NoSession() [][]string {
 	var positionLastSession []Position
 	positionLastSessionUrl := URLSite + "position?session_key=latest"
 	body, err := getData(positionLastSessionUrl)
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return nil
-	}
+	errorsh.AssertNilTer(err, "The program failed to take the session")
 
 	err = json.Unmarshal(body, &positionLastSession)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println(string(body))
-		return nil
-	}
+	errorsh.AssertNilJson(err, body)
 
 	cleanedSession := cleanSession(positionLastSession)
 
