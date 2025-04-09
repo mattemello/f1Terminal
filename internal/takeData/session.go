@@ -3,7 +3,6 @@ package takedata
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/mattemello/f1Terminal/internal/errorsh"

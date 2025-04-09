@@ -2,12 +2,13 @@ package takedata
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/mattemello/f1Terminal/internal/errorsh"
 )
 
 const URLSite = "https://api.openf1.org/v1/"
@@ -30,24 +31,17 @@ func getData(url string) ([]byte, error) {
 	return body, nil
 }
 
-func TakeCircuit() (Circuit, error) {
+func TakeCircuit() Circuit {
 	var cir []Circuit
 	circuitUrl := URLSite + "meetings?meeting_key=latest"
 
 	body, err := getData(circuitUrl)
-	if err != nil {
-		return Circuit{}, err
-	}
+	errorsh.AssertNilTer(err, "The program failed to get the data")
 
 	err = json.Unmarshal(body, &cir)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			return Circuit{}, errors.New(fmt.Sprintf("syntax error at byte offset %d \n body: %s", e.Offset, string(body)))
-		}
-		return Circuit{}, err
-	}
+	errorsh.AssertNilJson(err, body)
 
-	return cir[0], nil
+	return cir[0]
 }
 
 func TickedDone() [][]string {

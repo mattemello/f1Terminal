@@ -7,9 +7,11 @@ import (
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/mattemello/f1Terminal/internal/errorsh"
 	data "github.com/mattemello/f1Terminal/internal/takeData"
-	tui "github.com/mattemello/f1Terminal/internal/tui"
+
+	tui "github.com/mattemello/f1Terminal/interface/tui"
 )
 
 func newTableRow(str [][]string) []table.Row {

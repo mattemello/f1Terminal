@@ -2,7 +2,8 @@ package takedata
 
 import (
 	"encoding/json"
-	"log"
+
+	"github.com/mattemello/f1Terminal/internal/errorsh"
 )
 
 // NOTE: the int in the map is the number of the Driver
@@ -11,19 +12,10 @@ func interval() map[int]IntervalAll {
 	intUrl := URLSite + "intervals?session_key=latest&date>" + Previus + "&date<=" + Now
 
 	body, err := getData(intUrl)
-	if err != nil {
-		log.Println("error in the get, ", err)
-		return nil
-	}
+	errorsh.AssertNilFile(err, "The program failed to get the data")
 
 	err = json.Unmarshal(body, &inter)
-	if err != nil {
-		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
-		}
-		log.Println(string(body))
-		return nil
-	}
+	errorsh.AssertNilJson(err, body)
 
 	return cleanInterval(inter)
 }
