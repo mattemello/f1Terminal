@@ -1,9 +1,7 @@
 package tui
 
 import (
-	// "fmt"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -11,20 +9,26 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
+	"github.com/mattemello/f1Terminal/internal/errorsh"
 )
 
 var (
-	topLeftStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(25).
+	width        = 145
+	heightBottom = 23
+	heightTop    = 2
+	heightTotal  = 32
+
+	topLeftStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(width / 4).
 			Bold(true).MarginRight(2).PaddingLeft(1).Foreground(lipgloss.Color("#cba6f7"))
 
 	topRightStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).MarginRight(2)
 
-	topStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(100).
-			Height(2).Border(lipgloss.RoundedBorder()).
+	topStyle = lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Width(width).
+			Height(heightTop).Border(lipgloss.RoundedBorder()).
 			BorderLeft(false).BorderRight(false).BorderTop(false)
 
-	bottomStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Top).Width(100).
-			Height(23)
+	bottomStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Top).Width(width).
+			Height(heightBottom)
 
 	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 
@@ -51,6 +55,10 @@ var (
 	}
 )
 
+type MsgError struct {
+	Message string
+}
+
 type MsgUpdate struct {
 	SessionOn bool
 	Table     []table.Row
@@ -65,12 +73,20 @@ type Circuit struct {
 	TypeSession     string
 }
 
+type Terminal struct {
+	widthT  int
+	heightT int
+}
+
 type mainModel struct {
-	spinner   spinner.Model
-	top       Circuit
-	bottom    string
-	Table     table.Model
-	sessionOn bool
+	spinner      spinner.Model
+	top          Circuit
+	Table        table.Model
+	Terminal     Terminal
+	ErrorMessage string
+	tableOn      bool
+	sessionOn    bool
+	altScreen    bool
 }
 
 func NewModel(cir Circuit) mainModel {
@@ -83,6 +99,12 @@ func NewModel(cir Circuit) mainModel {
 }
 
 func (m mainModel) Init() tea.Cmd {
+	var err error
+	m.Terminal.widthT, m.Terminal.heightT, err = term.GetSize(0)
+	errorsh.AssertNilTer(err, "The program can't take the dimension of your terminal")
+
+	errorsh.AssertNotAppening((m.Terminal.widthT < width || m.Terminal.heightT < heightTotal), "Error, The terminal is too small")
+
 	return tea.Batch(tea.EnterAltScreen, m.spinner.Tick)
 }
 
@@ -101,12 +123,31 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.Table.SetStyles(stTable)
 		} else {
+			m.top.TypeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
 			m.Table = table.New(table.WithColumns(columsSess), table.WithRows(msg.Table), table.WithFocused(false), table.WithHeight(21))
 
 			m.Table.SetStyles(stTable)
 
 		}
-		m.bottom = "entered"
+		m.tableOn = true
+		break
+
+	case MsgError:
+
+		break
+
+	case tea.WindowSizeMsg:
+
+		var err error
+		m.Terminal.widthT, m.Terminal.heightT, err = term.GetSize(0)
+		errorsh.AssertNilTer(err, "The program can't take the dimension of your terminal")
+
+		if m.Terminal.widthT < width || m.Terminal.heightT < heightTotal {
+			m.ErrorMessage = "!!! THE TERMINAL IS TOO SMALL HELP!!!"
+		} else {
+			m.ErrorMessage = ""
+		}
+
 		break
 
 	case tea.KeyMsg:
@@ -116,7 +157,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	default:
-		if m.bottom == "" {
+		if !m.tableOn {
 			var cmd tea.Cmd
 			m.spinner, cmd = m.spinner.Update(msg)
 			return m, cmd
@@ -138,30 +179,30 @@ func CutOff(namGranPrix string) string {
 
 func (m mainModel) View() string {
 	var s string
+	var tt string
 
-	rightPart := fmt.Sprintf("Circuit full name: %s \nCountry name: %s - Session type: %s \nTime and date of the session (UTC): %s", m.top.GranprixOffName,
-		countryNameStyle.Render(m.top.CountryName), m.top.TypeSession, m.top.Date.Format("15:04:05 02-01-2006"))
+	if m.ErrorMessage == "" {
 
-	top := lipgloss.JoinHorizontal(lipgloss.Center, topLeftStyle.Render(m.top.GranprixName), topRightStyle.Render(rightPart))
-	tt := ""
+		rightPart := fmt.Sprintf("Circuit full name: %s \nCountry name: %s - Session type: %s \nTime and date of the session (UTC): %s", m.top.GranprixOffName,
+			countryNameStyle.Render(m.top.CountryName), m.top.TypeSession, m.top.Date.Format("15:04:05 02-01-2006"))
 
-	if m.bottom == "" {
-		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(fmt.Sprintf("%s waiting...\n", m.spinner.View())))
+		top := lipgloss.JoinHorizontal(lipgloss.Center, topLeftStyle.Render(m.top.GranprixName), topRightStyle.Render(rightPart))
+		tt = ""
+
+		if !m.tableOn {
+			tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(fmt.Sprintf("%s waiting...\n", m.spinner.View())))
+		} else {
+			tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
+		}
+
+		// todo: need to add some more help button like ↓↑
+		tt += helpStyle.Render(fmt.Sprintf("\n↓/↑ move\tq exit\n"))
+		tt = allStyle.Render(tt)
+
 	} else {
-		tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
+		tt += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(m.ErrorMessage)
 	}
 
-	// todo: need to add some more help button like ↓↑
-	tt += helpStyle.Render(fmt.Sprintf("\nq: exit\n"))
-	tt = allStyle.Render(tt)
-
-	width, height, err := term.GetSize(0)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	s += lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, tt)
-
+	s += lipgloss.Place(m.Terminal.widthT, m.Terminal.heightT, lipgloss.Center, lipgloss.Center, tt)
 	return s
 }

@@ -57,3 +57,12 @@ func AssertNilShutDown(err error, txt string) {
 		os.Exit(1)
 	}
 }
+
+func AssertNotAppening(ok bool, txt string) {
+	if ok {
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Printf("file: %s, line: %d - %s\n", file, line, txt)
+		log.Printf("file: %s, line: %d - %s\n", file, line, txt)
+		os.Exit(1)
+	}
+}
