@@ -114,7 +114,6 @@ func (m mainModel) View() string {
 			tt = lipgloss.JoinVertical(lipgloss.Center, topStyle.Render(top), bottomStyle.Render(m.Table.View()))
 		}
 
-		// todo: need to add some more help button like ↓↑
 		tt += helpStyle.Render(fmt.Sprintf("\n↓/↑ move\tq exit\n"))
 		tt = allStyle.Render(tt)
 
@@ -123,6 +122,7 @@ func (m mainModel) View() string {
 	}
 
 	s += lipgloss.Place(m.Terminal.widthT, m.Terminal.heightT, lipgloss.Center, lipgloss.Center, tt)
+
 	return s
 }
 

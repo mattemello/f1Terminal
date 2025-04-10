@@ -32,6 +32,7 @@ func AssertNilJson(err error, body []byte) {
 }
 
 // This is for the minor error that don't need to shut down the program and write all in a file
+// Return true if there is an err, false if there isn't.
 func AssertNilFile(err error, txt string) bool {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)

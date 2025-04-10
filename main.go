@@ -83,13 +83,13 @@ func main() {
 	var typeNewSession string
 
 	for {
+		on, typeNewSession = data.IsSessionOn()
 		if on {
 			p.Send(tui.MsgUpdateCiruit(controllSession(typeNewSession)))
 			Timer(p)
 		}
 
 		time.Sleep(5 * time.Second)
-		on, typeNewSession = data.IsSessionOn()
 	}
 
 }
@@ -123,5 +123,4 @@ func Timer(p *tea.Program) {
 			p.Send(ms)
 		}()
 	}
-
 }
