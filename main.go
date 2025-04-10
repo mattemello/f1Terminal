@@ -64,15 +64,24 @@ func main() {
 		p.Send(ms)
 	}
 
-	select {}
+	for {
+		if on {
+			Timer(p)
+		}
+
+		time.Sleep(5 * time.Second)
+		on, _ = data.IsSessionOn()
+	}
+
 }
 
 func Start(typeSession string) *tea.Program {
 	cir := data.TakeCircuit()
 
 	cirString := tui.Circuit{
-		GranprixName:    cir.CircuitShortName,
-		GranprixOffName: tui.CutOff(cir.MeetingOfficialName),
+		GranprixName: cir.CircuitShortName,
+		//GranprixOffName: tui.CutOff(cir.MeetingOfficialName),
+		GranprixOffName: tui.CutOff("FORMULA 1 MSC CRUISES GRAN PREMIO DEL MADE IN ITALY E DELL'EMILIA-ROMAGNA 2024"),
 		CountryName:     cir.CountryName,
 		Date:            cir.DateStart,
 		Location:        cir.Location,

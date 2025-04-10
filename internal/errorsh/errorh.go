@@ -32,11 +32,14 @@ func AssertNilJson(err error, body []byte) {
 }
 
 // This is for the minor error that don't need to shut down the program and write all in a file
-func AssertNilFile(err error, txt string) {
+func AssertNilFile(err error, txt string) bool {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
 		log.Printf("file: %s, line: %d - %s: %s", file, line, txt, err)
+		return true
 	}
+
+	return false
 }
 
 // This is for the error that need to close the program and need to send a feedback to the user

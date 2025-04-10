@@ -57,7 +57,7 @@ func TickedDone() [][]string {
 	return changedTable(session, inter)
 }
 
-func changedTable(clSe map[int]Position, inte map[int]IntervalAll) [][]string {
+func changedTable(clSe map[int]Position, inte map[int]Interval) [][]string {
 	var driv = make([][]string, 20)
 
 	for _, elem := range clSe {
@@ -66,8 +66,8 @@ func changedTable(clSe map[int]Position, inte map[int]IntervalAll) [][]string {
 			drvMap[elem.DriverNumber].FirstName,
 			drvMap[elem.DriverNumber].LastName,
 			fmt.Sprintf("%d", elem.DriverNumber),
-			fmt.Sprintf("%f", inte[elem.DriverNumber].GapToLeader),
-			fmt.Sprintf("%f", inte[elem.DriverNumber].Interval),
+			inte[elem.DriverNumber].GapToLeader,
+			inte[elem.DriverNumber].Interval,
 			drvMap[elem.DriverNumber].TeamName,
 		}
 	}

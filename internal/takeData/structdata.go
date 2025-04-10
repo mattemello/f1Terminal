@@ -66,6 +66,13 @@ type IntervalAll struct {
 	SessionKey   int       `json:"session_key"`
 }
 
+type Interval struct {
+	DriverNumber int
+	GapToLeader  string
+	Interval     string
+	Date         time.Time
+}
+
 type Car struct {
 	URL     string
 	CarData CarData
