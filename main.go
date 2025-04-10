@@ -46,6 +46,22 @@ func startError() {
 	defer file.Close()
 }
 
+func controllSession(tyS string) tui.Circuit {
+	cir := data.TakeCircuit()
+	var cirString tui.Circuit
+	cirString = tui.Circuit{
+		GranprixName:    cir.CircuitShortName,
+		GranprixOffName: tui.CutOff(cir.MeetingOfficialName),
+		// GranprixOffName: tui.CutOff("FORMULA 1 MSC CRUISES GRAN PREMIO DEL MADE IN ITALY E DELL'EMILIA-ROMAGNA 2024"),
+		CountryName: cir.CountryName,
+		Date:        cir.DateStart,
+		Location:    cir.Location,
+		TypeSession: tyS,
+	}
+
+	return cirString
+}
+
 func main() {
 	startError()
 
@@ -60,40 +76,30 @@ func main() {
 		str := data.NoSession()
 
 		tableRow := newTableRow(str)
-		ms := tui.MsgUpdate{SessionOn: false, Table: tableRow}
+		ms := tui.MsgUpdateTable{SessionOn: false, Table: tableRow}
 		p.Send(ms)
 	}
 
+	var typeNewSession string
+
 	for {
 		if on {
+			p.Send(tui.MsgUpdateCiruit(controllSession(typeNewSession)))
 			Timer(p)
 		}
 
 		time.Sleep(5 * time.Second)
-		on, _ = data.IsSessionOn()
+		on, typeNewSession = data.IsSessionOn()
 	}
 
 }
 
 func Start(typeSession string) *tea.Program {
-	cir := data.TakeCircuit()
-
-	cirString := tui.Circuit{
-		GranprixName: cir.CircuitShortName,
-		//GranprixOffName: tui.CutOff(cir.MeetingOfficialName),
-		GranprixOffName: tui.CutOff("FORMULA 1 MSC CRUISES GRAN PREMIO DEL MADE IN ITALY E DELL'EMILIA-ROMAGNA 2024"),
-		CountryName:     cir.CountryName,
-		Date:            cir.DateStart,
-		Location:        cir.Location,
-		TypeSession:     typeSession,
-	}
-
-	p := tea.NewProgram(tui.NewModel(cirString))
+	p := tea.NewProgram(tui.NewModel(controllSession(typeSession)))
 
 	go func() {
-		if _, err := p.Run(); err != nil {
-			errorsh.AssertNilTer(err, "The bubbletea program run in a error")
-		}
+		_, err := p.Run()
+		errorsh.AssertNilTer(err, "The bubbletea program run in a error")
 
 		os.Exit(0)
 	}()
@@ -113,7 +119,7 @@ func Timer(p *tea.Program) {
 
 			tableRow := newTableRow(str)
 
-			ms := tui.MsgUpdate{SessionOn: true, Table: tableRow}
+			ms := tui.MsgUpdateTable{SessionOn: true, Table: tableRow}
 			p.Send(ms)
 		}()
 	}

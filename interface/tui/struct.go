@@ -11,7 +11,9 @@ type MsgError struct {
 	Message string
 }
 
-type MsgUpdate struct {
+type MsgUpdateCiruit Circuit
+
+type MsgUpdateTable struct {
 	SessionOn bool
 	Table     []table.Row
 }

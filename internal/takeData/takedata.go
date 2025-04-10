@@ -72,5 +72,5 @@ func changedTable(clSe map[int]Position, inte map[int]Interval) [][]string {
 		}
 	}
 
-	return nil
+	return driv
 }

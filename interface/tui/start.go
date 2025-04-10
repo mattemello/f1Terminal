@@ -34,7 +34,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
-	case MsgUpdate:
+	case MsgUpdateTable:
 		var stTable = table.DefaultStyles()
 
 		stTable.Header = stTable.Header.BorderStyle(lipgloss.NormalBorder()).BorderBottom(true).Bold(false).Foreground(lipgloss.Color("#ed8796"))
@@ -52,6 +52,10 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		}
 		m.tableOn = true
+		break
+
+	case MsgUpdateCiruit:
+		m.top = Circuit(msg)
 		break
 
 	case MsgError:
