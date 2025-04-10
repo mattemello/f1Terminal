@@ -6,6 +6,8 @@
 
 # f1 terminal data viewer
 
+![f1 Terminal sample](./sample/f1TerminalView.png)
+
 ## Description
 
 This is a terminal data viewer for formula one session. You can check the result of the previus session if 
