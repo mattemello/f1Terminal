@@ -44,7 +44,7 @@ func TakeCircuit() Circuit {
 	return cir[0]
 }
 
-func TickedDone() [][]string {
+func TickedDone(lap *map[int]Laps) [][]string {
 	now := time.Now().UTC()
 	previus := now.Add(time.Duration(-1) * time.Second)
 
@@ -52,12 +52,13 @@ func TickedDone() [][]string {
 	Previus = strings.ReplaceAll(previus.Format("2006-01-02 15:04:05"), " ", "T")
 
 	session := session()
-	inter := interval()
+	//inter := interval()
+	takeLaps(lap)
 
-	return changedTable(session, inter)
+	return changedTable(session, lap)
 }
 
-func changedTable(clSe map[int]Position, inte map[int]Interval) [][]string {
+func changedTable(clSe map[int]Position, lap *map[int]Laps) [][]string {
 	var driv = make([][]string, 20)
 
 	for _, elem := range clSe {
@@ -66,8 +67,8 @@ func changedTable(clSe map[int]Position, inte map[int]Interval) [][]string {
 			drvMap[elem.DriverNumber].FirstName,
 			drvMap[elem.DriverNumber].LastName,
 			fmt.Sprintf("%d", elem.DriverNumber),
-			inte[elem.DriverNumber].GapToLeader,
-			inte[elem.DriverNumber].Interval,
+			fmt.Sprintf("%f", (*lap)[elem.DriverNumber].LapDuration),
+			fmt.Sprintf("%d", (*lap)[elem.DriverNumber].LapNumber),
 			drvMap[elem.DriverNumber].TeamName,
 		}
 	}

@@ -2,6 +2,35 @@ package takedata
 
 import "time"
 
+type LapsAll struct {
+	DateStart       time.Time `json:"date_start"`
+	DriverNumber    int       `json:"driver_number"`
+	DurationSector1 float64   `json:"duration_sector_1"`
+	DurationSector2 float64   `json:"duration_sector_2"`
+	DurationSector3 float64   `json:"duration_sector_3"`
+	I1Speed         int       `json:"i1_speed"`
+	I2Speed         int       `json:"i2_speed"`
+	IsPitOutLap     bool      `json:"is_pit_out_lap"`
+	LapDuration     float64   `json:"lap_duration"`
+	LapNumber       int       `json:"lap_number"`
+	MeetingKey      int       `json:"meeting_key"`
+	SegmentsSector1 []int     `json:"segments_sector_1"`
+	SegmentsSector2 []int     `json:"segments_sector_2"`
+	SegmentsSector3 []int     `json:"segments_sector_3"`
+	SessionKey      int       `json:"session_key"`
+	StSpeed         int       `json:"st_speed"`
+}
+
+type Laps struct {
+	DateStart       time.Time
+	DriverNumber    int
+	DurationSector1 float64
+	DurationSector2 float64
+	DurationSector3 float64
+	LapDuration     float64
+	LapNumber       int
+}
+
 type SessionStr struct {
 	CircuitKey       int       `json:"circuit_key"`
 	CircuitShortName string    `json:"circuit_short_name"`

@@ -42,8 +42,8 @@ var (
 		{Title: "First Name", Width: 9},
 		{Title: "Last Name", Width: 10},
 		{Title: "N° Driver", Width: 9},
-		{Title: "Gap Leader", Width: 9},
-		{Title: "Gap Head", Width: 9},
+		{Title: "Lap Duration", Width: 9},
+		{Title: "Lap Number", Width: 9},
 		{Title: "Team Name", Width: 10},
 	}
 )

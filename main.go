@@ -113,13 +113,14 @@ func Start(typeSession string) *tea.Program {
 }
 
 func Timer(p *tea.Program) {
+	laps := make(map[int]data.Laps)
 	ticker := time.NewTicker(20 * time.Second)
 	defer ticker.Stop()
 
 	for {
 		<-ticker.C
 		go func() {
-			str := data.TickedDone()
+			str := data.TickedDone(&laps)
 
 			tableRow := newTableRow(str)
 
