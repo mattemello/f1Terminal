@@ -25,7 +25,7 @@ func IsSessionOn() (bool, string) {
 
 func session() map[int]Position {
 	var positionLastSession []Position
-	positionLastSessionUrl := URLSite + "position?session_key=latest&date>" + Previus + "&date<=" + Now
+	positionLastSessionUrl := URLSite + "position?session_key=latest&date<=" + Now
 	body, err := getData(positionLastSessionUrl)
 	errorsh.AssertNilTer(err, "The program failed to take the session")
 
@@ -76,7 +76,7 @@ func cleanSession(pos []Position) map[int]Position {
 			continue
 		}
 
-		if !elem.Date.After(value.Date) {
+		if elem.Date.After(value.Date) {
 			mapPos[elem.DriverNumber] = elem
 			continue
 		}

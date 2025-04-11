@@ -45,7 +45,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.Table.SetStyles(stTable)
 		} else {
-			m.top.TypeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
 			m.Table = table.New(table.WithColumns(columsSess), table.WithRows(msg.Table), table.WithFocused(false), table.WithHeight(21))
 
 			m.Table.SetStyles(stTable)

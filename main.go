@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/mattemello/f1Terminal/internal/errorsh"
 	data "github.com/mattemello/f1Terminal/internal/takeData"
@@ -68,6 +69,10 @@ func main() {
 	data.TakeDriverInSession()
 	on, typeSession := data.IsSessionOn()
 
+	if on {
+		typeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
+	}
+
 	p := Start(typeSession)
 
 	if on {
@@ -80,16 +85,15 @@ func main() {
 		p.Send(ms)
 	}
 
-	var typeNewSession string
-
 	for {
-		on, typeNewSession = data.IsSessionOn()
+		on, typeSession = data.IsSessionOn()
 		if on {
-			p.Send(tui.MsgUpdateCiruit(controllSession(typeNewSession)))
+			typeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
+			p.Send(tui.MsgUpdateCiruit(controllSession(typeSession)))
 			Timer(p)
 		}
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(20 * time.Second)
 	}
 
 }
@@ -109,7 +113,7 @@ func Start(typeSession string) *tea.Program {
 }
 
 func Timer(p *tea.Program) {
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(20 * time.Second)
 	defer ticker.Stop()
 
 	for {

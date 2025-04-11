@@ -10,7 +10,7 @@ import (
 // NOTE: the int in the map is the number of the Driver
 func interval() map[int]Interval {
 	var inter []IntervalAll
-	intUrl := URLSite + "intervals?session_key=latest&date>" + Previus + "&date<=" + Now
+	intUrl := URLSite + "intervals?session_key=latest&date<=" + Now
 
 	body, err := getData(intUrl)
 	if errorsh.AssertNilFile(err, "The program failed to get the data") {

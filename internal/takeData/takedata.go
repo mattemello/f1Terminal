@@ -72,5 +72,9 @@ func changedTable(clSe map[int]Position, inte map[int]Interval) [][]string {
 		}
 	}
 
+	// for _, elem := range driv {
+	// 	fmt.Println(elem)
+	// }
+
 	return driv
 }
