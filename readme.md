@@ -48,10 +48,9 @@ For execute:
 ```
 
 The program itself will try to see if there is a **session on**. If there isn't it will display the previus
-session, and it will check every 5 seconds if there is a new session.
+session, and it will check every 10 seconds if there is a new session.
 
-In case of **session on** it will be updated every second (the time still need to be confirmed 
-in case this progect takes too much resources from [openf1](https://openf1.org/)).
+In case of **session on** it will be updated every five seconds. 
 
 ### Thing used
 
