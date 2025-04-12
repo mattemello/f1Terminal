@@ -42,8 +42,8 @@ var (
 		{Title: "First Name", Width: 9},
 		{Title: "Last Name", Width: 10},
 		{Title: "N° Driver", Width: 9},
-		{Title: "Lap Duration", Width: 9},
-		{Title: "Lap Number", Width: 9},
+		{Title: "Lap Time", Width: 10},
+		{Title: "N° Lap", Width: 10},
 		{Title: "Team Name", Width: 10},
 	}
 )

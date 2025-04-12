@@ -7,7 +7,7 @@ import (
 )
 
 func takeLaps(previusLap *map[int]Laps) {
-	lapUrl := URLSite + "laps?session_key=latest&date>" + Previus + "&date<=" + Now
+	lapUrl := URLSite + "laps?session_key=latest&date_start>" + Previus + "&date_start<=" + Now
 
 	body, err := getData(lapUrl)
 	if errorsh.AssertNilFile(err, "The program failed to take the laps data") {

@@ -114,11 +114,10 @@ func Start(typeSession string) *tea.Program {
 
 func Timer(p *tea.Program) {
 	laps := make(map[int]data.Laps)
-	ticker := time.NewTicker(20 * time.Second)
+	ticker := time.NewTicker(25 * time.Second)
 	defer ticker.Stop()
 
 	for {
-		<-ticker.C
 		go func() {
 			str := data.TickedDone(&laps)
 
@@ -127,5 +126,6 @@ func Timer(p *tea.Program) {
 			ms := tui.MsgUpdateTable{SessionOn: true, Table: tableRow}
 			p.Send(ms)
 		}()
+		<-ticker.C
 	}
 }
