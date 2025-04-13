@@ -8,16 +8,31 @@ import (
 	"runtime"
 )
 
-func OpenFileLog() *os.File {
-	if _, err := os.Open("/tmp/f1Terminal"); os.IsNotExist(err) {
-		err := os.Mkdir("/tmp/f1Terminal", 0755)
+const path = "../../tmp"
+
+var f *os.File
+
+func OpenFileLog() {
+	if _, err := os.Open(path); os.IsNotExist(err) {
+		err := os.Mkdir(path, 0755)
 		AssertNilShutDown(err, "Error in the open of the log directory")
 	}
 
-	fileLog, err := os.OpenFile("/tmp/f1Terminal/logfile", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	var err error
+	f, err = os.OpenFile(path+"/log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// fileLog, err = os.OpenFile(path+"/log.txt", os.O_APPEND|os.O_RDONLY|os.O_CREATE, 0666)
 	AssertNilShutDown(err, "Error in the open of the log file")
 
-	return fileLog
+	log.SetOutput(f)
+}
+
+func ClearLogFile() {
+	err := os.Truncate(path+"/log", 0)
+	AssertNilShutDown(err, "Couldent clear the log file")
+}
+
+func CloseFile() {
+	f.Close()
 }
 
 func AssertNilJson(err error, body []byte) {
@@ -36,7 +51,9 @@ func AssertNilJson(err error, body []byte) {
 func AssertNilFile(err error, txt string) bool {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
+		fmt.Println("here")
 		log.Printf("file: %s, line: %d - %s: %s", file, line, txt, err)
+		fmt.Println("printend")
 		return true
 	}
 

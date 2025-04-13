@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"time"
 
@@ -42,12 +41,10 @@ func newTableRow(str [][]string) []table.Row {
 }
 
 func startError() {
-	file := errorsh.OpenFileLog()
-	log.SetOutput(file)
-	defer file.Close()
+	errorsh.OpenFileLog()
 }
 
-func controllSession(tyS string) tui.Circuit {
+func controlSession(tyS string) tui.Circuit {
 	cir := data.TakeCircuit()
 	var cirString tui.Circuit
 	cirString = tui.Circuit{
@@ -89,7 +86,7 @@ func main() {
 		on, typeSession = data.IsSessionOn()
 		if on {
 			typeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
-			p.Send(tui.MsgUpdateCiruit(controllSession(typeSession)))
+			p.Send(tui.MsgUpdateCiruit(controlSession(typeSession)))
 			Timer(p)
 		}
 
@@ -99,7 +96,7 @@ func main() {
 }
 
 func Start(typeSession string) *tea.Program {
-	p := tea.NewProgram(tui.NewModel(controllSession(typeSession)))
+	p := tea.NewProgram(tui.NewModel(controlSession(typeSession)))
 
 	go func() {
 		_, err := p.Run()

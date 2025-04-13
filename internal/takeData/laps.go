@@ -19,10 +19,10 @@ func takeLaps(previusLap *map[int]Laps) {
 	err = json.Unmarshal(body, &lapsAll)
 	errorsh.AssertNilJson(err, body)
 
-	controllLaps(lapsAll, previusLap)
+	controlLaps(lapsAll, previusLap)
 }
 
-func controllLaps(lpAll []LapsAll, prLap *map[int]Laps) {
+func controlLaps(lpAll []LapsAll, prLap *map[int]Laps) {
 	for _, elem := range lpAll {
 		value, ok := (*prLap)[elem.DriverNumber]
 
