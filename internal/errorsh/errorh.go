@@ -38,11 +38,12 @@ func CloseFile() {
 
 func AssertNilJson(err error, body []byte) bool {
 	if err != nil {
+		_, file, line, _ := runtime.Caller(1)
 		if e, ok := err.(*json.SyntaxError); ok {
 			AssertNilFile(errors.New("Sintax error"), fmt.Sprintf("syntax error at byte offset %d\n", e.Offset))
 			// fmt.Printf("syntax error at byte offset %d\n", e.Offset)
 		}
-		AssertNilFile(err, fmt.Sprintf("error in the unmarshal: %s \n\nbody:\n %s", err, string(body)))
+		AssertNilFile(err, fmt.Sprintf("file: %s, line: %d \n\n error in the unmarshal: %s \n\nbody:\n %s", file, line, err, string(body)))
 		// fmt.Printf("error in the unmarshal: %s \n\nbody:\n %s", err, string(body))
 
 		return true
@@ -58,6 +59,7 @@ func AssertNilFile(err error, txt string) bool {
 		_, file, line, _ := runtime.Caller(1)
 
 		log.Printf("file: %s, line: %d - %s: %s\n", file, line, txt, err)
+		log.Printf("\n------------------------------------------------------------------------------------\n")
 
 		return true
 	}
