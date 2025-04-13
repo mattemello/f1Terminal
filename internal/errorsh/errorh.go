@@ -9,18 +9,18 @@ import (
 	"runtime"
 )
 
-const path = "../../tmp"
+const path = "./tmp"
 
 var f *os.File
 
 func OpenFileLog() {
 	if _, err := os.Open(path); os.IsNotExist(err) {
-		err := os.Mkdir(path, 0755)
+		err := os.Mkdir(path, 0777)
 		AssertNilShutDown(err, "Error in the open of the log directory")
 	}
 
 	var err error
-	f, err = os.OpenFile(path+"/log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err = os.OpenFile(path+"/log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 	// fileLog, err = os.OpenFile(path+"/log.txt", os.O_APPEND|os.O_RDONLY|os.O_CREATE, 0666)
 	AssertNilShutDown(err, "Error in the open of the log file")
 
@@ -56,8 +56,9 @@ func AssertNilJson(err error, body []byte) bool {
 func AssertNilFile(err error, txt string) bool {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
-		// fmt.Printf("file: %s, line: %d - %s: %s\n", file, line, txt, err)
+
 		log.Printf("file: %s, line: %d - %s: %s\n", file, line, txt, err)
+
 		return true
 	}
 
