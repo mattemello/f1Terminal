@@ -2,6 +2,7 @@ package errorsh
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -35,15 +36,19 @@ func CloseFile() {
 	f.Close()
 }
 
-func AssertNilJson(err error, body []byte) {
+func AssertNilJson(err error, body []byte) bool {
 	if err != nil {
 		if e, ok := err.(*json.SyntaxError); ok {
-			fmt.Printf("syntax error at byte offset %d\n", e.Offset)
+			AssertNilFile(errors.New("Sintax error"), fmt.Sprintf("syntax error at byte offset %d\n", e.Offset))
+			// fmt.Printf("syntax error at byte offset %d\n", e.Offset)
 		}
-		fmt.Printf("error in the unmarshal: %s \n\nbody:\n %s", err, string(body))
+		AssertNilFile(err, fmt.Sprintf("error in the unmarshal: %s \n\nbody:\n %s", err, string(body)))
+		// fmt.Printf("error in the unmarshal: %s \n\nbody:\n %s", err, string(body))
 
-		os.Exit(1)
+		return true
 	}
+
+	return false
 }
 
 // This is for the minor error that don't need to shut down the program and write all in a file
@@ -51,9 +56,8 @@ func AssertNilJson(err error, body []byte) {
 func AssertNilFile(err error, txt string) bool {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
-		fmt.Println("here")
-		log.Printf("file: %s, line: %d - %s: %s", file, line, txt, err)
-		fmt.Println("printend")
+		// fmt.Printf("file: %s, line: %d - %s: %s\n", file, line, txt, err)
+		log.Printf("file: %s, line: %d - %s: %s\n", file, line, txt, err)
 		return true
 	}
 

@@ -17,7 +17,9 @@ func takeLaps(previusLap *map[int]Laps) {
 	var lapsAll []LapsAll
 
 	err = json.Unmarshal(body, &lapsAll)
-	errorsh.AssertNilJson(err, body)
+	if errorsh.AssertNilJson(err, body) {
+		return
+	}
 
 	controlLaps(lapsAll, previusLap)
 }

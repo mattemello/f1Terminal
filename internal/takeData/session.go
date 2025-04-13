@@ -18,7 +18,9 @@ func IsSessionOn() (bool, string) {
 	errorsh.AssertNilTer(err, "The program failed to take the session")
 
 	err = json.Unmarshal(body, &session)
-	errorsh.AssertNilJson(err, body)
+	if errorsh.AssertNilJson(err, body) {
+		return false, "error"
+	}
 
 	return session[0].DateStart.Before(time.Now().UTC()) && session[0].DateEnd.After(time.Now().UTC()), session[0].SessionName
 }
@@ -30,7 +32,9 @@ func session() map[int]Position {
 	errorsh.AssertNilTer(err, "The program failed to take the session")
 
 	err = json.Unmarshal(body, &positionLastSession)
-	errorsh.AssertNilJson(err, body)
+	if errorsh.AssertNilJson(err, body) {
+		return map[int]Position{}
+	}
 
 	return cleanSession(positionLastSession)
 }
@@ -42,7 +46,9 @@ func NoSession() [][]string {
 	errorsh.AssertNilTer(err, "The program failed to take the session")
 
 	err = json.Unmarshal(body, &positionLastSession)
-	errorsh.AssertNilJson(err, body)
+	if errorsh.AssertNilJson(err, body) {
+		return nil
+	}
 
 	cleanedSession := cleanSession(positionLastSession)
 

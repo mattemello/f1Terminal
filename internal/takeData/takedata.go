@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -39,7 +40,10 @@ func TakeCircuit() Circuit {
 	errorsh.AssertNilTer(err, "The program failed to get the data")
 
 	err = json.Unmarshal(body, &cir)
-	errorsh.AssertNilJson(err, body)
+	if errorsh.AssertNilJson(err, body) {
+		fmt.Println("Error in the parse of the driver, to see more please control the log file")
+		os.Exit(1)
+	}
 
 	return cir[0]
 }

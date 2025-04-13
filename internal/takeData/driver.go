@@ -2,6 +2,8 @@ package takedata
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 
 	"github.com/mattemello/f1Terminal/internal/errorsh"
 )
@@ -16,7 +18,10 @@ func TakeDriverInSession() {
 	errorsh.AssertNilTer(err, "The program failed to take the drivers data")
 
 	err = json.Unmarshal(body, &driver)
-	errorsh.AssertNilJson(err, body)
+	if errorsh.AssertNilJson(err, body) {
+		fmt.Println("Error in the parse of the driver, to see more please control the log file")
+		os.Exit(1)
+	}
 
 	driverMap(driver)
 }
