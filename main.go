@@ -89,7 +89,7 @@ func main() {
 	for {
 		on, typeSession = data.IsSessionOn()
 		if typeSession == "error" {
-			errorsh.AssertNilShutDown(errors.New("Error in controll the session"), "The program failed to see if the session is on or not")
+			continue
 		} else if on {
 			typeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
 			p.Send(tui.MsgUpdateCiruit(controlSession(typeSession)))
