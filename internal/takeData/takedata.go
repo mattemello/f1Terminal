@@ -56,6 +56,9 @@ func TickedDone(lap *map[int]Laps) [][]string {
 	Previus = strings.ReplaceAll(previus.Format("2006-01-02 15:04:05"), " ", "T")
 
 	session := session()
+	if len(session) == 0 {
+		return nil
+	}
 	//inter := interval()
 	takeLaps(lap)
 

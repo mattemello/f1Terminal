@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -65,6 +66,9 @@ func main() {
 
 	data.TakeDriverInSession()
 	on, typeSession := data.IsSessionOn()
+	if typeSession == "error" {
+		errorsh.AssertNilShutDown(errors.New("Error in controll the session"), "The program failed to see if the session is on or not")
+	}
 
 	if on {
 		typeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
@@ -84,7 +88,9 @@ func main() {
 
 	for {
 		on, typeSession = data.IsSessionOn()
-		if on {
+		if typeSession == "error" {
+			errorsh.AssertNilShutDown(errors.New("Error in controll the session"), "The program failed to see if the session is on or not")
+		} else if on {
 			typeSession += lipgloss.NewStyle().Foreground(lipgloss.Color("#d20f39")).Render(" *")
 			p.Send(tui.MsgUpdateCiruit(controlSession(typeSession)))
 			Timer(p)
@@ -118,10 +124,12 @@ func Timer(p *tea.Program) {
 		go func() {
 			str := data.TickedDone(&laps)
 
-			tableRow := newTableRow(str)
+			if str != nil {
+				tableRow := newTableRow(str)
 
-			ms := tui.MsgUpdateTable{SessionOn: true, Table: tableRow}
-			p.Send(ms)
+				ms := tui.MsgUpdateTable{SessionOn: true, Table: tableRow}
+				p.Send(ms)
+			}
 		}()
 		<-ticker.C
 	}
